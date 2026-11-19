@@ -47,6 +47,14 @@
     .rule-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; font-size: 0.98rem; line-height: 1.35; }
     .rule-emoji { font-size: 1.5rem; flex-shrink: 0; }
     .got-it-btn { width: 100%; background: #ff5722; color: #fff; border: none; padding: 14px; border-radius: 50px; font-size: 1.15rem; font-weight: 900; cursor: pointer; margin-top: 8px; }
+    .deck-btn.locked { background: rgba(255,255,255,0.88); position: relative; border: 2px dashed #ff5722; }
+    .lock-badge { font-size: 0.78rem; background: #ff5722; color: #fff; padding: 3px 10px; border-radius: 20px; font-weight: 800; margin-top: 2px; }
+    .free-badge { font-size: 0.78rem; background: #2e7d32; color: #fff; padding: 3px 10px; border-radius: 20px; font-weight: 800; margin-top: 2px; }
+    .pay-btn { display: block; width: 100%; background: #2e7d32; color: #fff; text-decoration: none; text-align: center; padding: 14px; border-radius: 50px; font-size: 1.15rem; font-weight: 900; margin: 12px 0; box-shadow: 0 4px 12px rgba(46,125,50,0.35); }
+    .code-row { display: flex; gap: 8px; margin-top: 10px; }
+    .code-input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 12px; font-size: 1rem; font-weight: bold; text-transform: uppercase; text-align: center; letter-spacing: 2px; }
+    .unlock-submit-btn { background: #1e293b; color: #fff; border: none; padding: 0 18px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+    #codeError { color: #c62828; font-size: 0.85rem; margin-top: 6px; font-weight: bold; display: none; }
 
   </style>
 </head>
@@ -55,11 +63,12 @@
     <h1>Tukka Maar!</h1>
     <p class="subtitle">Phone maathe pe rakho aur guess karo!</p>
     <div class="deck-grid">
-      <button type="button" class="deck-btn" data-deck="bollywood"><span class="deck-icon">🎬</span>Bollywood Masala</button>
-      <button type="button" class="deck-btn" data-deck="movies"><span class="deck-icon">🍿</span>Movie Guessing</button>
-      <button type="button" class="deck-btn" data-deck="songs"><span class="deck-icon">🎵</span>Song Guessing</button>
-      <button type="button" class="deck-btn" data-deck="streetfood"><span class="deck-icon">🥘</span>Desi Street Food</button>
-      <button type="button" class="deck-btn full-width" data-deck="cricket"><span class="deck-icon">🏏</span>Cricket & IPL</button>
+            <button type="button" class="deck-btn full-width" data-deck="cricket"><span class="deck-icon">🏏</span>Cricket & IPL<span class="free-badge">FREE TRIAL</span></button>
+      <button type="button" class="deck-btn locked" data-deck="bollywood"><span class="deck-icon">🎬</span>Bollywood Masala<span class="lock-badge">🔒 ₹150 PRO</span></button>
+      <button type="button" class="deck-btn locked" data-deck="movies"><span class="deck-icon">🍿</span>Movie Guessing<span class="lock-badge">🔒 ₹150 PRO</span></button>
+      <button type="button" class="deck-btn locked" data-deck="songs"><span class="deck-icon">🎵</span>Song Guessing<span class="lock-badge">🔒 ₹150 PRO</span></button>
+      <button type="button" class="deck-btn locked" data-deck="streetfood"><span class="deck-icon">🥘</span>Desi Street Food<span class="lock-badge">🔒 ₹150 PRO</span></button>
+
     </div>
     <button type="button" id="installBtn">📲 Download App</button>
      <button type="button" id="openRulesBtn">❓ Kaise Khelein (Rules)</button>
@@ -92,6 +101,21 @@
       <div class="rule-item"><span class="rule-emoji">⬇️</span><div><b>Nod Down = SAHI! ✅</b> Sahi guess karne par phone ko neeche (floor ki taraf) jhukao.</div></div>
       <div class="rule-item"><span class="rule-emoji">⬆️</span><div><b>Tilt Up = PASS ❌</b> Skip karne ke liye phone ko upar (ceiling ki taraf) tilt karo.</div></div>
       <button type="button" class="got-it-btn" id="closeRulesBtn">Samajh Gaya! Let's Play</button>
+    </div>
+  </div>
+  <div id="upgradeModal" class="modal-overlay">
+    <div class="modal-box">
+      <h2>Unlock Full Version 👑</h2>
+      <p style="font-size:0.95rem;color:#444;margin-bottom:10px;line-height:1.4;">Play all <b>500 cards</b> across Bollywood, Movies, Songs, Street Food & Cricket forever!</p>
+         <a id="payLinkBtn" href="https://rzp.io/rzp/FkSOUZjw" target="_blank" class="pay-btn">💳 Pay ₹150 (UPI / Card)</a>
+
+      <p style="font-size:0.85rem;color:#666;text-align:center;">Already paid? Enter your 6-digit VIP code below:</p>
+      <div class="code-row">
+        <input type="text" id="unlockCodeInput" class="code-input" maxlength="6" placeholder="6-DIGIT CODE" />
+        <button type="button" id="verifyCodeBtn" class="unlock-submit-btn">Unlock</button>
+      </div>
+      <div id="codeError">Invalid 6-digit code. Please check your payment receipt!</div>
+      <button type="button" id="closeUpgradeBtn" style="width:100%;background:none;border:none;color:#777;margin-top:14px;font-weight:bold;cursor:pointer;">Continue Free Trial</button>
     </div>
   </div>
 
@@ -327,9 +351,56 @@
       }).join("");
     }
 
+        function isValidVipCode(code) {
+      if (!/^[A-Z0-9]{6}$/.test(code)) return false;
+      if (!/[0-9]/.test(code)) return false;
+      let sum = 0;
+      for (let i = 0; i < code.length; i++) sum += code.charCodeAt(i);
+      return sum % 17 === 9;
+    }
+
+    const upgradeModal = document.getElementById("upgradeModal");
+    let isProUnlocked = localStorage.getItem("tukkaMaarPro") === "true";
+
+    function refreshDeckLocks() {
+      if (!isProUnlocked) return;
+      document.querySelectorAll(".deck-btn.locked").forEach(function(btn) {
+        btn.classList.remove("locked");
+        const badge = btn.querySelector(".lock-badge");
+        if (badge) badge.remove();
+      });
+    }
+    refreshDeckLocks();
+
     document.querySelectorAll(".deck-btn").forEach(function(btn) {
-      btn.addEventListener("click", function() { prepareGame(btn.getAttribute("data-deck")); });
+      btn.addEventListener("click", function() {
+        const deck = btn.getAttribute("data-deck");
+        if (deck !== "cricket" && !isProUnlocked) {
+          upgradeModal.classList.add("show");
+          return;
+        }
+        prepareGame(deck);
+      });
     });
+
+    document.getElementById("verifyCodeBtn").addEventListener("click", function() {
+      const entered = document.getElementById("unlockCodeInput").value.trim().toUpperCase();
+      if (isValidVipCode(entered)) {
+        localStorage.setItem("tukkaMaarPro", "true");
+        isProUnlocked = true;
+        refreshDeckLocks();
+        upgradeModal.classList.remove("show");
+        alert("🎉 Tukka Maar Pro Unlocked! All 500 cards are ready!");
+      } else {
+        document.getElementById("codeError").style.display = "block";
+      }
+    });
+
+    document.getElementById("closeUpgradeBtn").addEventListener("click", function() {
+      upgradeModal.classList.remove("show");
+      document.getElementById("codeError").style.display = "none";
+    });
+
     document.getElementById("passBtn").addEventListener("click", function() { handleAnswer(false); });
     document.getElementById("correctBtn").addEventListener("click", function() { handleAnswer(true); });
     document.getElementById("playAgainBtn").addEventListener("click", function() { showScreen("homeScreen"); });
