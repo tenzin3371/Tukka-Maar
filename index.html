@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Tukka Maar - Desi Party Game</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#ff5722" />
+  <link rel="apple-touch-icon" href="icon.png" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
+    body { background: linear-gradient(135deg, #ff5722, #ff9800); color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; text-align: center; }
+    .screen { display: none; width: 100%; height: 100%; padding: 20px; flex-direction: column; align-items: center; justify-content: center; }
+    .screen.active { display: flex; }
+    
+    /* Home Screen */
+    h1 { font-size: 3rem; font-weight: 900; text-shadow: 2px 4px 10px rgba(0,0,0,0.2); margin-bottom: 5px; }
+    p.subtitle { font-size: 1.1rem; margin-bottom: 20px; opacity: 0.95; }
+    .deck-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 450px; margin-bottom: 20px; }
+    .deck-btn { background: #fff; color: #333; border: none; border-radius: 16px; padding: 20px 10px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 6px 15px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+    .deck-btn:active { transform: scale(0.95); }
+    .deck-icon { font-size: 2rem; }
+    
+    /* Install Banner Button */
+    #installBtn { display: none; background: #1e293b; color: #fff; border: 2px solid #fff; padding: 12px 24px; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .ios-hint { font-size: 0.85rem; margin-top: 10px; opacity: 0.9; max-width: 320px; }
+
+    /* Ready / Countdown Screen */
+    #readyText { font-size: 2rem; font-weight: bold; margin-bottom: 15px; }
+    #countdownNum { font-size: 6rem; font-weight: 900; }
+
+    /* Game Screen */
+    #gameScreen { justify-content: space-between; padding: 15px; }
+    #timer { font-size: 2.2rem; font-weight: 900; background: rgba(0,0,0,0.25); padding: 8px 25px; border-radius: 30px; }
+    #wordDisplay { font-size: 3.2rem; font-weight: 900; padding: 20px; line-height: 1.2; text-shadow: 2px 4px 8px rgba(0,0,0,0.25); word-wrap: break-word; max-width: 90%; }
+    .controls { display: flex; width: 100%; max-width: 500px; gap: 15px; height: 25vh; }
+    .ctrl-btn { flex: 1; border: none; border-radius: 20px; font-size: 1.5rem; font-weight: 900; color: #fff; cursor: pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+    .btn-pass { background: #e53935; }
+    .btn-correct { background: #43a047; }
+    .btn-pass:active, .btn-correct:active { transform: scale(0.96); }
+
+    /* Flash Feedback */
+    body.flash-correct { background: #2e7d32 !important; }
+    body.flash-pass { background: #c62828 !important; }
+
+    /* Summary Screen */
+    #scoreDisplay { font-size: 2.5rem; font-weight: 900; margin-bottom: 15px; }
+    #resultsList { background: rgba(255,255,255,0.95); color: #333; width: 100%; max-width: 400px; height: 45vh; overflow-y: auto; border-radius: 16px; padding: 15px; text-align: left; margin-bottom: 20px; }
+    .result-item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 1.1rem; font-weight: 600; display: flex; justify-content: space-between; }
+    .res-correct { color: #2e7d32; }
+    .res-pass { color: #c62828; text-decoration: line-through; opacity: 0.7; }
+    .play-again-btn { background: #fff; color: #ff5722; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.3rem; font-weight: 900; cursor: pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+  </style>
+</head>
+<body>
+
+  <!-- HOME SCREEN -->
+  <div id="homeScreen" class="screen active">
+    <h1>Tukka Maar!</h1>
+    <p class="subtitle">Phone maathe pe rakho aur guess karo!</p>
+    <div class="deck-grid">
+      <button class="deck-btn" onclick="prepareGame('bollywood')"><span class="deck-icon">🎬</span>Bollywood Masala</button>
+      <button class="deck-btn" onclick="prepareGame('streetfood')"><span class="deck-icon">🥘</span>Desi Street Food</button>
+      <button class="deck-btn" onclick="prepareGame('weddings')"><span class="deck-icon">🥁</span>Bada Indian Wedding</button>
+      <button class="deck-btn" onclick="prepareGame('cricket')"><span class="deck-icon">🏏</span>Cricket & IPL</button>
+    </div>
+    <button id="installBtn">📲 Download App</button>
+    <p class="ios-hint">iPhone users: Tap <b>Share</b> &rarr; <b>Add to Home Screen</b> to install.</p>
+  </div>
+
+  <!-- READY SCREEN -->
+  <div id="readyScreen" class="screen">
+    <div id="readyText">Phone apne maathe (forehead) par rakho!</div>
+    <div id="countdownNum">3</div>
+  </div>
+
+  <!-- GAMEPLAY SCREEN -->
+  <div id="gameScreen" class="screen">
+    <div id="timer">60</div>
+    <div id="wordDisplay">Loading...</div>
+    <div class="controls">
+      <button class="ctrl-btn btn-pass" onclick="handleAnswer(false)">PASS ❌</button>
+      <button class="ctrl-btn btn-correct" onclick="handleAnswer(true)">SAHI! ✅</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY SCREEN -->
+  <div id="summaryScreen" class="screen">
+    <h1>Time Up!</h1>
+    <div id="scoreDisplay">Score: 0</div>
+    <div id="resultsList"></div>
+    <button class="play-again-btn" onclick="goHome()">Phir Se Khelo</button>
+  </div>
+
+  <script>
+    const decks = {
+      bollywood: [
+        "Mogambo Khush Hua", "Gabbar Singh", "Dilwale Dulhania Le Jayenge", "Pushpa: Jhukega Nahi",
+        "Munna Bhai MBBS", "Babu Bhaiya", "Shah Rukh Khan Pose", "3 Idiots", "Karan Johar",
+        "Chaiyya Chaiyya", "Basanti In Kutton Ke Saamne", "Don Ko Pakadna Mushkil Hai",
+        "Circuit", "Bahubali", "Anil Kapoor (Jhakaas)", "Gangs of Wasseypur", "Sholay",
+        "Hera Pheri", "Salman Khan Bracelet", "Lagaan"
+      ],
+      streetfood: [
+        "Pani Puri / Golgappa", "Vada Pav", "Masala Dosa", "Chole Bhature", "Samosa Chutney",
+        "Cutting Chai", "Jalebi Fafda", "Momos with Red Chutney", "Pav Bhaji", "Aloo Tikki Chaat",
+        "Bhel Puri", "Kulfi Falooda", "Poha Jalebi", "Butter Chicken", "Maggi Pahadon Wali",
+        "Lassi", "Biryani", "Dahi Bhalla", "Kachori", "Filter Kaapi"
+      ],
+      weddings: [
+        "Joota Chupai", "Naagin Dance", "Fufaji Ki Narazgi", "Sangeet Choreography", "Baraat Ghodi",
+        "Shaadi Ka Card", "Mehendi", "Pandit Ji", "Dulhan Ki Entry", "Buffet Ki Line",
+        "Rishtedaar Aunties", "Haldi Ceremony", "Vidaai", "Jaimala", "DJ Wale Babu",
+        "Sherwani", "Gulab Jamun Counter", "Shagun Ka Lifafa", "Pre-Wedding Shoot", "Band Baaja"
+      ],
+      cricket: [
+        "Virat Kohli", "MS Dhoni Helicopter Shot", "Sachin Tendulkar", "Rohit Sharma",
+        "Jasprit Bumrah", "IPL Auction", "Super Over", "Third Umpire", "Free Hit",
+        "Mahendra Singh Dhoni", "Chak De India", "Commentary Box", "Wicket Keeper",
+        "Royal Challengers Bengaluru", "Mumbai Indians", "Chennai Super Kings", "LBW Appeal",
+        "Boundary Six", "World Cup Final", "Gully Cricket (One Tip One Hand)"
+      ]
+    };
+
+    let currentWords = [];
+    let currentIndex = 0;
+    let score = 0;
+    let timeLeft = 60;
+    let gameTimer;
+    let results = [];
+    let canTilt = true;
+    let isPlaying = false;
+
+    // Simple Web Audio API Beep Generator
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTone(freq, type, duration) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    function prepareGame(deckKey) {
+      // Request iOS Motion Permission if needed
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        DeviceOrientationEvent.requestPermission().catch(console.error);
+      }
+      
+      currentWords = [...decks[deckKey]].sort(() => Math.random() - 0.5);
+      currentIndex = 0;
+      score = 0;
+      results = [];
+      showScreen('readyScreen');
+
+      let prepTime = 3;
+      document.getElementById('countdownNum').innerText = prepTime;
+      playTone(440, 'sine', 0.2);
+
+      const prepInterval = setInterval(() => {
+        prepTime--;
+        if (prepTime > 0) {
+          document.getElementById('countdownNum').innerText = prepTime;
+          playTone(440, 'sine', 0.2);
+        } else {
+          clearInterval(prepInterval);
+          playTone(880, 'sine', 0.4);
+          startGame();
+        }
+      }, 1000);
+    }
+
+    function startGame() {
+      isPlaying = true;
+      timeLeft = 60;
+      document.getElementById('timer').innerText = timeLeft;
+      showScreen('gameScreen');
+      nextWord();
+
+      gameTimer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').innerText = timeLeft;
+        if (timeLeft <= 5 && timeLeft > 0) playTone(500, 'triangle', 0.15);
+        if (timeLeft <= 0) endGame();
+      }, 1000);
+    }
+
+    function nextWord() {
+      if (currentIndex >= currentWords.length) {
+        currentWords = currentWords.sort(() => Math.random() - 0.5);
+        currentIndex = 0;
+      }
