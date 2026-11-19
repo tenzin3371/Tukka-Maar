@@ -55,6 +55,17 @@
     .code-input { flex: 1; padding: 12px; border: 2px solid #ddd; border-radius: 12px; font-size: 1rem; font-weight: bold; text-transform: uppercase; text-align: center; letter-spacing: 2px; }
     .unlock-submit-btn { background: #1e293b; color: #fff; border: none; padding: 0 18px; border-radius: 12px; font-weight: bold; cursor: pointer; }
     #codeError { color: #c62828; font-size: 0.85rem; margin-top: 6px; font-weight: bold; display: none; }
+    .player-setup { background: rgba(255,255,255,0.18); padding: 14px; border-radius: 20px; width: 100%; max-width: 420px; margin: 12px 0 6px; }
+    .player-setup-top { display: flex; align-items: center; justify-content: space-between; font-weight: 800; font-size: 1rem; margin-bottom: 10px; }
+    .player-select { padding: 6px 14px; border-radius: 12px; border: none; font-weight: 900; font-size: 1rem; color: #ff5722; background: #fff; cursor: pointer; }
+    .player-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .player-name-input { padding: 9px 12px; border-radius: 10px; border: none; font-size: 0.92rem; font-weight: 700; color: #1e293b; width: 100%; }
+    #turnBanner { font-size: 1.5rem; font-weight: 900; background: rgba(0,0,0,0.22); padding: 8px 22px; border-radius: 50px; margin-bottom: 14px; }
+    .leaderboard { width: 100%; max-width: 380px; background: rgba(255,255,255,0.95); color: #1e293b; border-radius: 20px; padding: 14px; margin: 14px 0; box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+    .lb-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #eee; font-weight: 800; font-size: 1.05rem; }
+    .lb-row:last-child { border-bottom: none; }
+    .lb-row.top1 { background: #fef3c7; border-radius: 12px; color: #b45309; }
+    .lb-score { background: #ff5722; color: #fff; padding: 3px 12px; border-radius: 20px; font-size: 0.95rem; }
 
   </style>
 </head>
@@ -62,6 +73,23 @@
   <div id="homeScreen" class="screen active">
     <h1>Tukka Maar!</h1>
     <p class="subtitle">Phone maathe pe rakho aur guess karo!</p>
+        <div class="player-setup">
+      <div class="player-setup-top">
+        <span>👥 Players (1–8):</span>
+        <select id="playerCountSelect" class="player-select">
+          <option value="1">1 Player</option>
+          <option value="2" selected>2 Players</option>
+          <option value="3">3 Players</option>
+          <option value="4">4 Players</option>
+          <option value="5">5 Players</option>
+          <option value="6">6 Players</option>
+          <option value="7">7 Players</option>
+          <option value="8">8 Players</option>
+        </select>
+      </div>
+      <div id="playerInputsGrid" class="player-inputs"></div>
+    </div>
+
     <div class="deck-grid">
             <button type="button" class="deck-btn full-width" data-deck="cricket"><span class="deck-icon">🏏</span>Cricket & IPL<span class="free-badge">FREE TRIAL</span></button>
       <button type="button" class="deck-btn locked" data-deck="bollywood"><span class="deck-icon">🎬</span>Bollywood Masala<span class="lock-badge">🔒 ₹150 PRO</span></button>
@@ -76,6 +104,8 @@
     <p class="ios-hint">iPhone users: Tap <b>Share</b> &rarr; <b>Add to Home Screen</b> to install.</p>
   </div>
   <div id="readyScreen" class="screen">
+       <div id="turnBanner">🎯 Player 1's Turn!</div>
+
     <div id="readyText">Phone apne maathe (forehead) par rakho!</div>
     <div id="countdownNum">3</div>
   </div>
@@ -87,12 +117,13 @@
       <button type="button" class="ctrl-btn btn-correct" id="correctBtn">SAHI! ✅</button>
     </div>
   </div>
-  <div id="summaryScreen" class="screen">
-    <h1>Time Up!</h1>
-    <div id="scoreDisplay">Score: 0</div>
-    <div id="resultsList"></div>
-    <button type="button" class="play-again-btn" id="playAgainBtn">Phir Se Khelo</button>
-  </div>
+    <div id="summaryScreen" class="screen">
+      <h1 id="summaryTitle">Time Up!</h1>
+      <div id="finalScore">Score: 0</div>
+      <div id="leaderboardList" class="leaderboard"></div>
+      <button type="button" class="play-again-btn" id="nextTurnBtn">Next Player ➡️</button>
+    </div>
+   
     <div id="rulesModal" class="modal-overlay">
     <div class="modal-box">
       <h2>Kaise Khelein? 🎮</h2>
@@ -340,16 +371,81 @@
       setTimeout(function() { document.body.classList.remove(c); }, 250);
     }
 
-    function endGame() {
+        function endGame() {
       isPlaying = false;
       clearInterval(gameTimer);
-      playTone(300, "sawtooth", 0.6);
-      showScreen("summaryScreen");
-      document.getElementById("scoreDisplay").innerText = "Score: " + score;
-      document.getElementById("resultsList").innerHTML = results.map(function(r) {
-        return "<div class='result-item " + (r.isCorrect ? "res-correct" : "res-pass") + "'><span>" + r.word + "</span><span>" + (r.isCorrect ? "✅" : "❌") + "</span></div>";
+      playTone(300, "sawtooth", 0.5);
+      players[currentPlayerIndex].score = score;
+      players[currentPlayerIndex].played = true;
+
+      document.getElementById("summaryTitle").textContent = players[currentPlayerIndex].name + " Scored!";
+      document.getElementById("finalScore").textContent = score + " Points";
+
+      const ranked = [...players].sort((a, b) => b.score - a.score);
+      const medals = ["🥇", "🥈", "🥉"];
+      document.getElementById("leaderboardList").innerHTML = ranked.map((p, idx) => {
+        const badge = p.played ? (medals[idx] || ("#" + (idx + 1))) : "⏳";
+        const scoreTxt = p.played ? (p.score + " pts") : "Waiting";
+        return `<div class="lb-row ${idx === 0 && p.played ? 'top1' : ''}"><span>${badge} ${p.name}</span><span class="lb-score">${scoreTxt}</span></div>`;
       }).join("");
+
+      const nextBtn = document.getElementById("nextTurnBtn");
+      if (currentPlayerIndex + 1 < players.length) {
+        nextBtn.textContent = "Next: " + players[currentPlayerIndex + 1].name + " ➡️";
+      } else {
+        nextBtn.textContent = "🏆 Final Leaderboard • Home";
+      }
+      showScreen("summaryScreen");
     }
+
+    document.getElementById("nextTurnBtn").addEventListener("click", function() {
+      if (currentPlayerIndex + 1 < players.length) {
+        currentPlayerIndex++;
+        startCurrentPlayerTurn();
+      } else {
+        showScreen("homeScreen");
+      }
+    });
+    let players = [];
+    let currentPlayerIndex = 0;
+    let activeDeck = "cricket";
+
+    const playerCountSelect = document.getElementById("playerCountSelect");
+    const playerInputsGrid = document.getElementById("playerInputsGrid");
+
+    function renderPlayerInputs() {
+      const count = parseInt(playerCountSelect.value, 10);
+      const existing = Array.from(playerInputsGrid.querySelectorAll("input")).map(i => i.value);
+      playerInputsGrid.innerHTML = "";
+      for (let i = 0; i < count; i++) {
+        const inp = document.createElement("input");
+        inp.type = "text";
+        inp.className = "player-name-input";
+        inp.placeholder = "Player " + (i + 1);
+        inp.value = existing[i] || "";
+        playerInputsGrid.appendChild(inp);
+      }
+    }
+    playerCountSelect.addEventListener("change", renderPlayerInputs);
+    renderPlayerInputs();
+
+    function initPartySession(deck) {
+      activeDeck = deck;
+      const inputs = Array.from(playerInputsGrid.querySelectorAll("input"));
+      players = inputs.map((inp, idx) => ({
+        name: inp.value.trim() || ("Player " + (idx + 1)),
+        score: 0,
+        played: false
+      }));
+      currentPlayerIndex = 0;
+      startCurrentPlayerTurn();
+    }
+
+    function startCurrentPlayerTurn() {
+      document.getElementById("turnBanner").textContent = "🎯 " + players[currentPlayerIndex].name + "'s Turn!";
+      prepareGame(activeDeck);
+    }
+
 
         function isValidVipCode(code) {
       if (!/^[A-Z0-9]{6}$/.test(code)) return false;
@@ -379,7 +475,8 @@
           upgradeModal.classList.add("show");
           return;
         }
-        prepareGame(deck);
+            initPartySession(deck);
+
       });
     });
 
@@ -403,7 +500,6 @@
 
     document.getElementById("passBtn").addEventListener("click", function() { handleAnswer(false); });
     document.getElementById("correctBtn").addEventListener("click", function() { handleAnswer(true); });
-    document.getElementById("playAgainBtn").addEventListener("click", function() { showScreen("homeScreen"); });
 
           let neutralGamma = null;
     window.addEventListener("deviceorientation", function(e) {
