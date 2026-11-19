@@ -10,22 +10,22 @@
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; }
     body { background: linear-gradient(135deg, #ff5722, #ff9800); color: #fff; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; text-align: center; }
-    .screen { display: none; width: 100%; height: 100%; padding: 20px; flex-direction: column; align-items: center; justify-content: center; }
+    .screen { display: none; width: 100%; height: 100%; padding: 16px; flex-direction: column; align-items: center; justify-content: center; }
     .screen.active { display: flex; }
-    h1 { font-size: 3rem; font-weight: 900; text-shadow: 2px 4px 10px rgba(0,0,0,0.2); margin-bottom: 5px; }
-    p.subtitle { font-size: 1.1rem; margin-bottom: 20px; opacity: 0.95; }
-    .deck-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; max-width: 450px; margin-bottom: 20px; }
-    .deck-btn { background: #fff; color: #333; border: none; border-radius: 16px; padding: 20px 10px; font-size: 1.1rem; font-weight: bold; box-shadow: 0 6px 15px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-    .deck-btn:hover { transform: translateY(-2px); }
+    h1 { font-size: 2.6rem; font-weight: 900; text-shadow: 2px 4px 10px rgba(0,0,0,0.2); margin-bottom: 4px; }
+    p.subtitle { font-size: 1rem; margin-bottom: 14px; opacity: 0.95; }
+    .deck-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 450px; margin-bottom: 14px; max-height: 65vh; overflow-y: auto; padding: 4px; }
+    .deck-btn { background: #fff; color: #333; border: none; border-radius: 16px; padding: 14px 8px; font-size: 1rem; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer; transition: transform 0.1s; display: flex; flex-direction: column; align-items: center; gap: 5px; }
+    .deck-btn.full-width { grid-column: span 2; }
     .deck-btn:active { transform: scale(0.95); }
-    .deck-icon { font-size: 2rem; pointer-events: none; }
-    #installBtn { display: none; background: #1e293b; color: #fff; border: 2px solid #fff; padding: 12px 24px; border-radius: 50px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
-    .ios-hint { font-size: 0.85rem; margin-top: 10px; opacity: 0.9; max-width: 320px; }
-    #readyText { font-size: 2rem; font-weight: bold; margin-bottom: 15px; }
+    .deck-icon { font-size: 1.8rem; pointer-events: none; }
+    #installBtn { display: none; background: #1e293b; color: #fff; border: 2px solid #fff; padding: 10px 22px; border-radius: 50px; font-size: 0.95rem; font-weight: bold; cursor: pointer; margin-top: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .ios-hint { font-size: 0.8rem; margin-top: 8px; opacity: 0.9; max-width: 320px; }
+    #readyText { font-size: 1.9rem; font-weight: bold; margin-bottom: 15px; }
     #countdownNum { font-size: 6rem; font-weight: 900; }
     #gameScreen { justify-content: space-between; padding: 15px; }
     #timer { font-size: 2.2rem; font-weight: 900; background: rgba(0,0,0,0.25); padding: 8px 25px; border-radius: 30px; }
-    #wordDisplay { font-size: 3.2rem; font-weight: 900; padding: 20px; line-height: 1.2; text-shadow: 2px 4px 8px rgba(0,0,0,0.25); word-wrap: break-word; max-width: 90%; }
+    #wordDisplay { font-size: 3rem; font-weight: 900; padding: 16px; line-height: 1.2; text-shadow: 2px 4px 8px rgba(0,0,0,0.25); word-wrap: break-word; max-width: 92%; }
     .controls { display: flex; width: 100%; max-width: 500px; gap: 15px; height: 22vh; }
     .ctrl-btn { flex: 1; border: none; border-radius: 20px; font-size: 1.5rem; font-weight: 900; color: #fff; cursor: pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
     .btn-pass { background: #e53935; }
@@ -35,7 +35,7 @@
     body.flash-pass { background: #c62828 !important; }
     #scoreDisplay { font-size: 2.5rem; font-weight: 900; margin-bottom: 15px; }
     #resultsList { background: rgba(255,255,255,0.95); color: #333; width: 100%; max-width: 400px; height: 45vh; overflow-y: auto; border-radius: 16px; padding: 15px; text-align: left; margin-bottom: 20px; }
-    .result-item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 1.1rem; font-weight: 600; display: flex; justify-content: space-between; }
+    .result-item { padding: 8px 0; border-bottom: 1px solid #eee; font-size: 1.05rem; font-weight: 600; display: flex; justify-content: space-between; }
     .res-correct { color: #2e7d32; }
     .res-pass { color: #c62828; text-decoration: line-through; opacity: 0.7; }
     .play-again-btn { background: #fff; color: #ff5722; border: none; padding: 15px 40px; border-radius: 50px; font-size: 1.3rem; font-weight: 900; cursor: pointer; box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
@@ -47,9 +47,10 @@
     <p class="subtitle">Phone maathe pe rakho aur guess karo!</p>
     <div class="deck-grid">
       <button type="button" class="deck-btn" data-deck="bollywood"><span class="deck-icon">🎬</span>Bollywood Masala</button>
+      <button type="button" class="deck-btn" data-deck="movies"><span class="deck-icon">🍿</span>Movie Guessing</button>
+      <button type="button" class="deck-btn" data-deck="songs"><span class="deck-icon">🎵</span>Song Guessing</button>
       <button type="button" class="deck-btn" data-deck="streetfood"><span class="deck-icon">🥘</span>Desi Street Food</button>
-      <button type="button" class="deck-btn" data-deck="weddings"><span class="deck-icon">🥁</span>Bada Indian Wedding</button>
-      <button type="button" class="deck-btn" data-deck="cricket"><span class="deck-icon">🏏</span>Cricket & IPL</button>
+      <button type="button" class="deck-btn full-width" data-deck="cricket"><span class="deck-icon">🏏</span>Cricket & IPL</button>
     </div>
     <button type="button" id="installBtn">📲 Download App</button>
     <p class="ios-hint">iPhone users: Tap <b>Share</b> &rarr; <b>Add to Home Screen</b> to install.</p>
@@ -74,12 +75,127 @@
   </div>
   <script>
     const decks = {
-      bollywood: ["Mogambo Khush Hua", "Gabbar Singh", "Dilwale Dulhania Le Jayenge", "Pushpa: Jhukega Nahi", "Munna Bhai MBBS", "Babu Bhaiya", "Shah Rukh Khan Pose", "3 Idiots", "Karan Johar", "Chaiyya Chaiyya", "Basanti In Kutton Ke Saamne", "Don Ko Pakadna Mushkil Hai", "Circuit", "Bahubali", "Anil Kapoor (Jhakaas)", "Gangs of Wasseypur", "Sholay", "Hera Pheri", "Salman Khan Bracelet", "Lagaan"],
-      streetfood: ["Pani Puri / Golgappa", "Vada Pav", "Masala Dosa", "Chole Bhature", "Samosa Chutney", "Cutting Chai", "Jalebi Fafda", "Momos with Red Chutney", "Pav Bhaji", "Aloo Tikki Chaat", "Bhel Puri", "Kulfi Falooda", "Poha Jalebi", "Butter Chicken", "Maggi Pahadon Wali", "Lassi", "Biryani", "Dahi Bhalla", "Kachori", "Filter Kaapi"],
-      weddings: ["Joota Chupai", "Naagin Dance", "Fufaji Ki Narazgi", "Sangeet Choreography", "Baraat Ghodi", "Shaadi Ka Card", "Mehendi", "Pandit Ji", "Dulhan Ki Entry", "Buffet Ki Line", "Rishtedaar Aunties", "Haldi Ceremony", "Vidaai", "Jaimala", "DJ Wale Babu", "Sherwani", "Gulab Jamun Counter", "Shagun Ka Lifafa", "Pre-Wedding Shoot", "Band Baaja"],
-      cricket: ["Virat Kohli", "MS Dhoni Helicopter Shot", "Sachin Tendulkar", "Rohit Sharma", "Jasprit Bumrah", "IPL Auction", "Super Over", "Third Umpire", "Free Hit", "Mahendra Singh Dhoni", "Chak De India", "Commentary Box", "Wicket Keeper", "Royal Challengers Bengaluru", "Mumbai Indians", "Chennai Super Kings", "LBW Appeal", "Boundary Six", "World Cup Final", "Gully Cricket (One Tip One Hand)"]
+      bollywood: [
+        "Mogambo Khush Hua", "Gabbar Singh", "Kitne Aadmi The", "Mere Paas Maa Hai", "Pushpa: Jhukega Nahi",
+        "Babu Bhaiya", "Shah Rukh Khan Open Arms", "Karan Johar", "Circuit", "Anil Kapoor (Jhakaas)",
+        "Crime Master Gogo", "Chulbul Pandey", "Salman Khan Bracelet", "Ranveer Singh Fashion", "Rekha",
+        "Amitabh Bachchan", "Rajinikanth Style", "Don Ko Pakadna Mushkil Hai", "Basanti In Kutton Ke Saamne", "Rishte Mein Toh Hum Tumhare Baap Lagte Hain",
+        "Tareekh Pe Tareekh", "All Izz Well", "Jaa Simran Jaa", "Bade Bade Deshon Mein", "Picture Abhi Baaki Hai Mere Dost",
+        "How's The Josh?", "Apna Time Aayega", "Aata Majhi Satakli", "Utha Le Re Baba", "Yeh Babu Rao Ka Style Hai",
+        "Munna Bhai Jhappi", "Kachra Seth", "Majnu Bhai Painting", "Control Uday Control", "Bhagam Bhag",
+        "Prem (Salman Khan)", "Raj & Simran", "Rahul Naam Toh Suna Hoga", "Poo (K3G)", "Geet (Jab We Met)",
+        "Ranchhoddas Chanchad", "Virus (Boman Irani)", "Chatur Speech", "Silencer", "Sardar Khan",
+        "Faizal Khan", "Kaleen Bhaiya", "Munna Bhaiya", "Guddu Pandit", "Pankaj Tripathi",
+        "Nawazuddin Siddiqui", "Manoj Bajpayee", "Irrfan Khan", "Rishi Kapoor", "Govinda Dance",
+        "Mithun Chakraborty", "Sunny Deol Dhai Kilo Ka Haath", "Dharmendra", "Hema Malini", "Madhuri Dixit",
+        "Sridevi", "Kajol", "Kareena Kapoor", "Deepika Padukone", "Priyanka Chopra",
+        "Alia Bhatt", "Ranbir Kapoor", "Hrithik Roshan", "Akshay Kumar", "Ajay Devgn",
+        "Aamir Khan", "Saif Ali Khan", "Vicky Kaushal", "Kartik Aaryan", "Ayushmann Khurrana",
+        "Rajkummar Rao", "Shraddha Kapoor", "Katrina Kaif", "Anushka Sharma", "Varun Dhawan",
+        "Sanjay Dutt", "Jackie Shroff (Bhidu)", "Nana Patekar", "Paresh Rawal", "Johnny Lever",
+        "Rajpal Yadav", "Boman Irani", "Amrish Puri", "Prem Chopra", "Shakti Kapoor",
+        "Gulshan Grover", "Prem Naam Hai Mera", "Teja Main Hoon Mark Idhar Hai", "Thappad Se Darr Nahi Lagta", "Ek Chutki Sindoor",
+        "Parampara Pratishtha Anushasan", "Senorita", "Kuch Kuch Hota Hai Tum Nahi Samjhoge", "Dost Fail Ho Jaye Toh Dukh Hota Hai", "Bollywood Item Song"
+      ],
+      movies: [
+        "Sholay", "Dilwale Dulhania Le Jayenge", "3 Idiots", "Mughal-e-Azam", "Mother India",
+        "Deewaar", "Zanjeer", "Don (1978)", "Amar Akbar Anthony", "Mr. India",
+        "Hum Aapke Hain Koun", "Hum Saath Saath Hain", "Kuch Kuch Hota Hai", "Kabhi Khushi Kabhie Gham", "Kal Ho Naa Ho",
+        "Veer-Zaara", "Dil Chahta Hai", "Zindagi Na Milegi Dobara", "Yeh Jawaani Hai Deewani", "Jab We Met",
+        "Lagaan", "Rang De Basanti", "Taare Zameen Par", "Dangal", "PK",
+        "Munna Bhai MBBS", "Lage Raho Munna Bhai", "Hera Pheri", "Phir Hera Pheri", "Welcome",
+        "Bhool Bhulaiyaa", "Hulchul", "Hungama", "Chup Chup Ke", "Golmaal",
+        "Andaz Apna Apna", "Jaane Bhi Do Yaaro", "Chak De! India", "Swades", "My Name Is Khan",
+        "Om Shanti Om", "Chennai Express", "Jawan", "Pathaan", "Bajrangi Bhaijaan",
+        "Sultan", "Tiger Zinda Hai", "Dabangg", "Tere Naam", "Wanted",
+        "Koi Mil Gaya", "Krrish", "Dhoom", "Dhoom 2", "War",
+        "Bahubali: The Beginning", "Bahubali 2: The Conclusion", "RRR", "KGF Chapter 1", "Pushpa: The Rise",
+        "Gangs of Wasseypur", "Drishyam", "Andhadhun", "Queen", "Tanu Weds Manu",
+        "Barfi!", "Rockstar", "Tamasha", "Sanju", "Bajirao Mastani",
+        "Padmaavat", "Devdas", "Black", "Gully Boy", "Uri: The Surgical Strike",
+        "Raazi", "Shershaah", "12th Fail", "Stree", "Stree 2",
+        "Animal", "Kabir Singh", "Brahmastra", "Bhool Bhulaiyaa 2", "Bhediya",
+        "Kantata", "Tumbbad", "Masaan", "Kahani", "A Wednesday",
+        "Special 26", "Baby", "Holiday", "Rustom", "Airlift",
+        "M.S. Dhoni: The Untold Story", "Bhaag Milkha Bhaag", "Mary Kom", "Chhichhore", "Laapataa Ladies"
+      ],
+      songs: [
+        "Lag Ja Gale", "Chaiyya Chaiyya", "Tujhe Dekha Toh", "Kabira", "Kesariya",
+        "Kala Chashma", "Badtameez Dil", "Channa Mereya", "Tum Hi Ho", "Kal Ho Naa Ho (Title Track)",
+        "Jai Ho", "Kajra Re", "Munni Badnaam Hui", "Sheila Ki Jawani", "Fevicol Se",
+        "Lungi Dance", "Kar Gayi Chull", "London Thumakda", "Gallan Goodiyaan", "Senorita (ZNMD)",
+        "Dil Dhadakne Do", "Ilahi", "Balam Pichkari", "Subha Hone Na De", "Desi Girl",
+        "Maa Da Laadla", "Shava Shava", "Bole Chudiyan", "Suraj Hua Maddham", "Pehla Nasha",
+        "Papa Kehte Hain", "Ek Do Teen", "Dhak Dhak Karne Laga", "Choli Ke Peeche", "Tip Tip Barsa Paani",
+        "Tu Cheez Badi Hai Mast Mast", "O O Jaane Jaana", "Tan Tana Tan", "Chalti Hai Kya 9 Se 12", "Jumma Chumma De De",
+        "Roop Tera Mastana", "Mere Sapno Ki Rani", "Yeh Dosti Hum Nahi Todenge", "Mehbooba Mehbooba", "Dum Maro Dum",
+        "Piya Tu Ab To Aaja", "Bachna Ae Haseeno", "Om Shanti Om (Meri Umar Ke)", "Khaike Paan Banaras Wala", "Aaj Phir Jeene Ki Tamanna Hai",
+        "Pyar Hua Iqrar Hua", "Mera Joota Hai Japani", "Ajeeb Dastan Hai Yeh", "Chura Liya Hai Tumne", "Gulabi Aankhen",
+        "Likhe Jo Khat Tujhe", "Pal Pal Dil Ke Paas", "Tere Bina Zindagi Se", "Hothon Se Chhu Lo Tum", "Chitti Aayi Hai",
+        "Didi Tera Devar Deewana", "Pehla Pehla Pyar Hai", "Bahut Pyar Karte Hain", "Mera Dil Bhi Kitna Pagal Hai", "Chura Ke Dil Mera",
+        "Ae Mere Humsafar", "Kaho Naa Pyaar Hai", "Ek Pal Ka Jeena", "You Are My Soniya", "It's The Time To Disco",
+        "Where's The Party Tonight", "Dard-E-Disco", "Deewangi Deewangi", "Mauja Hi Mauja", "Nagada Sang Dhol",
+        "Ghoomar", "Malhari", "Khalibali", "Pinga", "Deewani Mastani",
+        "Ghungroo", "Jai Jai Shivshankar", "Nashe Si Chadh Gayi", "Aankh Marey", "Dilbar",
+        "O Saki Saki", "Garmi", "Muqabla", "Naatu Naatu", "Srivalli",
+        "Oo Antava", "Apna Bana Le", "Raataan Lambiyan", "Ranjha", "Tera Yaar Hoon Main",
+        "Zingaat", "Tauba Tauba", "Aaj Ki Raat", "Husn", "Chaleya"
+      ],
+      streetfood: [
+        "Pani Puri / Golgappa", "Vada Pav", "Masala Dosa", "Chole Bhature", "Samosa Chutney",
+        "Cutting Chai", "Jalebi Fafda", "Momos with Red Chutney", "Pav Bhaji", "Aloo Tikki Chaat",
+        "Bhel Puri", "Kulfi Falooda", "Poha Jalebi", "Butter Chicken", "Maggi Pahadon Wali",
+        "Lassi", "Biryani", "Dahi Bhalla", "Kachori", "Filter Kaapi",
+        "Sev Puri", "Ragda Pattice", "Idli Sambar", "Medu Vada", "Tandoori Chicken",
+        "Paneer Tikka", "Raj Kachori", "Papdi Chaat", "Dabeli", "Misal Pav",
+        "Aloo Paratha with Makkhan", "Kulhad Chai", "Ganne Ka Juice", "Nimbu Pani / Shikanji", "Aam Panna",
+        "Kathi Roll", "Shawarma", "Chilli Potato", "Chowmein Thele Wali", "Gulab Jamun",
+        "Rasmalai", "Jalebi Rabri", "Gajar Ka Halwa", "Kulfi", "Paan (Meetha Paan)",
+        "Bun Maska", "Keema Pav", "Litti Chokha", "Dhokla", "Chana Jor Garam",
+        "Khaman", "Khandvi", "Thepla", "Dal Baati Churma", "Pyaaz Kachori",
+        "Mirchi Vada", "Bikaneri Bhujia", "Ghevar", "Moong Dal Halwa", "Rabri",
+        "Chole Kulche", "Ram Ladoo", "Dahi Puri", "Shakarkandi Chaat", "Aloo Chaat",
+        "Paneer Pakora", "Bread Pakora", "Mirchi Pakora", "Onion Bhaji / Kanda Bhaji", "Sabudana Vada",
+        "Sabudana Khichdi", "Thalipeeth", "Puran Poli", "Modak", "Shrikhand",
+        "Batata Vada", "Bombay Sandwich", "Tawa Pulao", "Frankie", "Akuri on Toast",
+        "Rava Dosa", "Onion Uttapam", "Pesarattu", "Appam with Stew", "Puttu Kadala",
+        "Malabar Parotta", "Bisi Bele Bath", "Mysore Pak", "Chilli Chicken", "Gobi Manchurian",
+        "Tandoori Momos", "Afghani Chaap", "Soya Chaap Roll", "Galouti Kebab", "Seekh Kebab",
+        "Mutton Rogan Josh", "Hyderabadi Haleem", "Irani Chai", "Osmania Biscuit", "Rooh Afza Sharbat"
+      ],
+      cricket: [
+        "Virat Kohli", "MS Dhoni Helicopter Shot", "Sachin Tendulkar", "Rohit Sharma", "Jasprit Bumrah",
+        "IPL Auction", "Super Over", "Third Umpire", "Free Hit", "Mahendra Singh Dhoni",
+        "Chak De India", "Commentary Box", "Wicket Keeper", "Royal Challengers Bengaluru", "Mumbai Indians",
+        "Chennai Super Kings", "LBW Appeal", "Boundary Six", "World Cup Final", "Gully Cricket (One Tip One Hand)",
+        "Hardik Pandya", "Ravindra Jadeja Sword Celebration", "Yuvraj Singh 6 Sixes", "Kapil Dev", "Sourav Ganguly Shirt Wave",
+        "Rahul Dravid (The Wall)", "Shikhar Dhawan Thigh Five", "Suryakumar Yadav", "Rishabh Pant", "Mohammed Shami",
+        "Yorker", "Googly", "Doosra", "Duckworth Lewis Method", "Powerplay",
+        "Orange Cap", "Purple Cap", "Strategic Timeout", "Cheerleaders", "Eden Gardens",
+        "Wankhede Stadium", "India vs Pakistan Match", "Howzat!", "No Ball", "Wide Ball",
+        "Clean Bowled", "Run Out", "Catch Drop", "Hat-Trick", "Man of the Match",
+        "Kolkata Knight Riders", "Sunrisers Hyderabad", "Delhi Capitals", "Rajasthan Royals", "Punjab Kings",
+        "Gujarat Titans", "Lucknow Super Giants", "Virender Sehwag", "Gautam Gambhir", "Harbhajan Singh",
+        "Anil Kumble", "Zaheer Khan", "Yuzvendra Chahal", "Kuldeep Yadav", "Ravichandran Ashwin",
+        "Shubman Gill", "KL Rahul", "Shreyas Iyer", "Sanju Samson", "Ishan Kishan",
+        "Arshdeep Singh", "Mohammed Siraj", "Bhuvneshwar Kumar", "Suresh Raina", "Dinesh Karthik",
+        "AB de Villiers (Mr. 360)", "Chris Gayle (Universe Boss)", "Lasith Malinga", "Rashid Khan", "Glenn Maxwell",
+        "David Warner", "Pat Cummins", "Ben Stokes", "Jos Buttler", "Shane Warne",
+        "Muttiah Muralitharan", "Brian Lara", "Ricky Ponting", "Wasim Akram", "Shoaib Akhtar",
+        "1983 World Cup", "2007 T20 World Cup", "2011 World Cup Six", "2024 T20 World Cup", "Narendra Modi Stadium",
+        "M. Chinnaswamy Stadium", "MA Chidambaram Stadium", "Arun Jaitley Stadium", "DRS Review", "Maiden Over"
+      ]
     };
-    let currentWords = [], currentIndex = 0, score = 0, timeLeft = 60, gameTimer = null, results = [], canTilt = true, isPlaying = false, audioCtx = null;
+    let activeDeckKey = "bollywood";
+    let remainingPool = [];
+    let currentWord = "";
+    let score = 0;
+    let timeLeft = 60;
+    let gameTimer = null;
+    let results = [];
+    let canTilt = true;
+    let isPlaying = false;
+    let audioCtx = null;
 
     function playTone(freq, type, duration) {
       try {
@@ -106,14 +222,27 @@
       document.getElementById(id).classList.add("active");
     }
 
+    function refillPool() {
+      remainingPool = decks[activeDeckKey].slice();
+    }
+
+    function pickRandomWord() {
+      if (remainingPool.length === 0) refillPool();
+      const randomIndex = Math.floor(Math.random() * remainingPool.length);
+      currentWord = remainingPool.splice(randomIndex, 1)[0];
+      document.getElementById("wordDisplay").innerText = currentWord;
+    }
+
     function prepareGame(deckKey) {
       try {
         if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") {
           DeviceOrientationEvent.requestPermission().catch(function() {});
         }
       } catch (e) {}
-      currentWords = decks[deckKey].slice().sort(function() { return Math.random() - 0.5; });
-      currentIndex = 0; score = 0; results = [];
+      activeDeckKey = deckKey;
+      refillPool();
+      score = 0;
+      results = [];
       showScreen("readyScreen");
       let prepTime = 3;
       document.getElementById("countdownNum").innerText = prepTime;
@@ -132,10 +261,11 @@
     }
 
     function startGame() {
-      isPlaying = true; timeLeft = 60;
+      isPlaying = true;
+      timeLeft = 60;
       document.getElementById("timer").innerText = timeLeft;
       showScreen("gameScreen");
-      nextWord();
+      pickRandomWord();
       if (gameTimer) clearInterval(gameTimer);
       gameTimer = setInterval(function() {
         timeLeft--;
@@ -145,22 +275,18 @@
       }, 1000);
     }
 
-    function nextWord() {
-      if (currentIndex >= currentWords.length) {
-        currentWords = currentWords.sort(function() { return Math.random() - 0.5; });
-        currentIndex = 0;
-      }
-      document.getElementById("wordDisplay").innerText = currentWords[currentIndex];
-    }
-
     function handleAnswer(isCorrect) {
       if (!isPlaying) return;
-      const word = currentWords[currentIndex];
-      results.push({ word: word, isCorrect: isCorrect });
-      if (isCorrect) { score++; playTone(750, "sine", 0.25); flashScreen("flash-correct"); }
-      else { playTone(250, "sawtooth", 0.25); flashScreen("flash-pass"); }
-      currentIndex++;
-      nextWord();
+      results.push({ word: currentWord, isCorrect: isCorrect });
+      if (isCorrect) {
+        score++;
+        playTone(750, "sine", 0.25);
+        flashScreen("flash-correct");
+      } else {
+        playTone(250, "sawtooth", 0.25);
+        flashScreen("flash-pass");
+      }
+      pickRandomWord();
     }
 
     function flashScreen(c) {
@@ -169,7 +295,8 @@
     }
 
     function endGame() {
-      isPlaying = false; clearInterval(gameTimer);
+      isPlaying = false;
+      clearInterval(gameTimer);
       playTone(300, "sawtooth", 0.6);
       showScreen("summaryScreen");
       document.getElementById("scoreDisplay").innerText = "Score: " + score;
@@ -192,14 +319,17 @@
     });
 
     function triggerTilt(isCorrect) {
-      canTilt = false; handleAnswer(isCorrect);
+      canTilt = false;
+      handleAnswer(isCorrect);
       setTimeout(function() { canTilt = true; }, 1200);
     }
 
     let deferredPrompt;
     const installBtn = document.getElementById("installBtn");
     window.addEventListener("beforeinstallprompt", function(e) {
-      e.preventDefault(); deferredPrompt = e; installBtn.style.display = "inline-block";
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = "inline-block";
     });
     installBtn.addEventListener("click", async function() {
       if (!deferredPrompt) return;
