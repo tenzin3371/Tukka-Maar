@@ -312,13 +312,24 @@
     document.getElementById("correctBtn").addEventListener("click", function() { handleAnswer(true); });
     document.getElementById("playAgainBtn").addEventListener("click", function() { showScreen("homeScreen"); });
 
-        window.addEventListener("deviceorientation", function(e) {
-      if (!isPlaying || !canTilt) return;
-      if (e.beta === null || e.gamma === null) return;
-      if (Math.abs(e.gamma) < 35) return;
-      if (e.beta > 135) triggerTilt(true);
-      else if (e.beta < 45 && e.beta > -45) triggerTilt(false);
+          let neutralGamma = null;
+    window.addEventListener("deviceorientation", function(e) {
+      if (!isPlaying) { neutralGamma = null; return; }
+      if (!canTilt || e.gamma === null) return;
+      if (Math.abs(e.gamma) > 65 && neutralGamma === null) {
+        neutralGamma = e.gamma;
+        return;
+      }
+      if (neutralGamma === null) return;
+      if (Math.abs(e.gamma) < 35) {
+        neutralGamma = null;
+        triggerTilt(true);
+      } else if ((neutralGamma < 0 && e.gamma > 35) || (neutralGamma > 0 && e.gamma < -35)) {
+        neutralGamma = null;
+        triggerTilt(false);
+      }
     });
+
 
 
     function triggerTilt(isCorrect) {
