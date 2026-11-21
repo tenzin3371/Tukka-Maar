@@ -142,10 +142,12 @@
   </div>
     <div id="upgradeModal" class="modal-overlay">
     <div class="modal-box">
-      <h2>Unlock Full Version 👑</h2>
-      <p style="font-size:0.9rem;color:#444;margin-bottom:8px;">Scan & Pay <b>₹150</b> via GPay, PhonePe, or Paytm to unlock all <b>500 cards</b> forever:</p>
-      <img src="qr.jpg" alt="Scan UPI QR to Pay ₹150" style="width:170px;height:170px;object-fit:contain;display:block;margin:6px auto;border:2px solid #eee;border-radius:14px;padding:6px;" />
-      <p style="font-size:0.8rem;color:#555;text-align:center;margin-bottom:6px;">Paid ₹150? Enter your <b>12-digit UPI Ref / UTR No.</b> to get your code:</p>
+           <div style="display:inline-block;background:#dc2626;color:#fff;font-weight:800;font-size:0.75rem;padding:4px 10px;border-radius:999px;margin-bottom:6px;letter-spacing:0.4px;">🔥 WEEKEND LAUNCH OFFER • ENDS SUNDAY NIGHT</div>
+      <h2>Unlock All 500 Cards 👑</h2>
+      <p style="font-size:0.92rem;color:#444;margin-bottom:8px;">Scan &amp; Pay <span style="text-decoration:line-through;color:#888;">₹150</span> <b style="color:#16a34a;font-size:1.25rem;">₹49</b> via GPay, PhonePe, or Paytm to unlock all <b>500 cards</b> forever:</p>
+      <img src="qr.jpg" alt="Scan UPI QR to Pay ₹49" style="width:170px;height:170px;object-fit:contain;display:block;margin:6px auto;border-radius:12px;border:2px solid #eee;" />
+      <p style="font-size:0.8rem;color:#555;text-align:center;margin-bottom:6px;">Paid <b>₹49</b>? Enter your <b>12-digit UPI Ref / UTR No.</b> below:</p>
+
       <div class="code-row" style="margin-bottom:8px;">
         <input type="text" id="utrInput" class="code-input" maxlength="12" placeholder="12-DIGIT UTR NO." style="font-size:0.9rem;letter-spacing:1px;" />
         <button type="button" id="verifyUtrBtn" class="unlock-submit-btn">Get Code</button>
@@ -465,16 +467,30 @@
       for (let i = 0; i < code.length; i++) sum += code.charCodeAt(i);
       return sum % 17 === 9;
     }
-
     const upgradeModal = document.getElementById("upgradeModal");
     let isProUnlocked = localStorage.getItem("tukkaMaarPro") === "true";
+    let playedSamples = JSON.parse(localStorage.getItem("tukkaSampleDecks") || "{}");
 
     function refreshDeckLocks() {
-      if (!isProUnlocked) return;
       document.querySelectorAll(".deck-btn.locked").forEach(function(btn) {
-        btn.classList.remove("locked");
+        const deck = btn.getAttribute("data-deck");
         const badge = btn.querySelector(".lock-badge");
-        if (badge) badge.remove();
+        if (isProUnlocked) {
+          btn.classList.remove("locked");
+          if (badge) badge.remove();
+        } else if (!playedSamples[deck]) {
+          if (badge) {
+            badge.textContent = "🎁 1 FREE ROUND";
+            badge.style.background = "#16a34a";
+            badge.style.color = "#fff";
+          }
+        } else {
+          if (badge) {
+            badge.textContent = "🔒🔥 ₹49 WEEKEND";
+            badge.style.background = "";
+            badge.style.color = "";
+          }
+        }
       });
     }
     refreshDeckLocks();
@@ -483,13 +499,21 @@
       btn.addEventListener("click", function() {
         const deck = btn.getAttribute("data-deck");
         if (deck !== "cricket" && !isProUnlocked) {
-          upgradeModal.classList.add("show");
+          if (playedSamples[deck]) {
+            upgradeModal.classList.add("show");
+            return;
+          }
+          playedSamples[deck] = true;
+          localStorage.setItem("tukkaSampleDecks", JSON.stringify(playedSamples));
+          refreshDeckLocks();
+          initPartySession(deck);
+          remainingPool = remainingPool.slice(0, 10);
           return;
         }
-            initPartySession(deck);
-
+        initPartySession(deck);
       });
     });
+
  document.getElementById("verifyUtrBtn").addEventListener("click", function() {
    const utr = document.getElementById("utrInput").value.trim();
    if (/^\d{12}$/.test(utr)) {
